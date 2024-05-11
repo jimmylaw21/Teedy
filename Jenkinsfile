@@ -14,6 +14,7 @@ pipeline {
         stage('Test report') {
         	steps {
         		sh 'mvn surefire-report:report'
+        		sh 'mvn javadoc:javadoc --fail-never'
         	}
         }
     }

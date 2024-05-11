@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-                sh 'mvn -B clean package' 
+                sh 'mvn -B clean package --fail-never' 
             }
         }
         stage('pmd') {

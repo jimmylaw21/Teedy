@@ -1,29 +1,38 @@
 pipeline {
-    agent any
-    stages {
-        stage('Build') { 
-            steps {
-                sh 'mvn -B clean package --fail-never' 
-            }
-        }
-        stage('pmd') {
-            steps {
-                sh 'mvn pmd:pmd'
-            }
-        }
-        stage('Test report') {
-        	steps {
-        		sh 'mvn surefire-report:report'
-        		sh 'mvn javadoc:javadoc --fail-never'
-        	}
-        }
+  agent any
+  stages {
+    stage('Build') {
+      steps {
+        sh 'mvn -B -DskipTests clean package'
+      }
     }
-
-    post {
+    stage('pmd') {
+      steps {
+        sh 'mvn pmd:pmd'
+      }
+    }
+    stage('Javadoc') {
+      steps {
+        sh 'mvn javadoc:jar'
+      }
+    }
+    stage('Test') {
+      steps {
+        sh 'mvn test --fail-never'
+      }
+      post {
         always {
-            archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
-            archiveArtifacts artifacts: '**/target/**/*.jar', fingerprint: true
-            archiveArtifacts artifacts: '**/target/**/*.war', fingerprint: true
+          junit '**/target/surefire-reports/TEST-*.xml'
         }
+      }
     }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
+      archiveArtifacts artifacts: '**/target/**/*.jar', fingerprint: true
+      archiveArtifacts artifacts: '**/target/**/*.war', fingerprint: true
+    }
+  }
 }
